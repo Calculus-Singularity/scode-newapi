@@ -354,6 +354,29 @@ func SetApiRouter(router *gin.Engine) {
 			modelsRoute.DELETE("/:id", controller.DeleteModelMeta)
 		}
 
+		// 外部系统接口（套餐站开号/额度管理）
+		externalRoute := apiRouter.Group("/external")
+		externalRoute.Use(middleware.ExternalApiAuth())
+		{
+			externalRoute.POST("/user", controller.ExternalCreateUser)
+			externalRoute.GET("/user", controller.ExternalListUser)
+			externalRoute.GET("/user/:id", controller.ExternalGetUser)
+			externalRoute.PUT("/user/:id/quota", controller.ExternalUpdateQuota)
+			externalRoute.PUT("/user/:id/status", controller.ExternalUpdateStatus)
+			externalRoute.DELETE("/user/:id", controller.ExternalDeleteUser)
+			externalRoute.POST("/user/:id/token", controller.ExternalCreateToken)
+			externalRoute.GET("/user/:id/tokens", controller.ExternalListTokens)
+			externalRoute.DELETE("/user/:id/tokens", controller.ExternalDeleteUserTokens)
+			externalRoute.DELETE("/token/:token_id", controller.ExternalDeleteToken)
+			externalRoute.PUT("/token/:token_id", controller.ExternalUpdateToken)
+			externalRoute.PUT("/token/:token_id/status", controller.ExternalUpdateTokenStatus)
+			// 批量 & 统计
+			externalRoute.POST("/users/batch/quota", controller.ExternalBatchUpdateQuota)
+			externalRoute.GET("/stats", controller.ExternalGetStats)
+			// 用量日志
+			externalRoute.GET("/user/:id/logs", controller.ExternalGetUserLogs)
+		}
+
 		// Deployments (model deployment management)
 		deploymentsRoute := apiRouter.Group("/deployments")
 		deploymentsRoute.Use(middleware.AdminAuth())
